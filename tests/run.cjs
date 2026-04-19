@@ -307,7 +307,7 @@ function loadModules() {
   return {
     index: req('index.js'),
     state: req('state.js'),
-    tmux: req('tmux.js'),
+    tmux: req('psmux.js'),
     agents: req('agents.js'),
     protocol: req('protocol.js'),
     orchestration: req('orchestration.js'),

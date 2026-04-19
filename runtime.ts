@@ -24,7 +24,7 @@ import {
   sendEnterToPane,
   sendPromptToPane,
   syncPaneLabelsForTeam,
-} from './tmux.js'
+} from './psmux.js'
 import {
   defaultThreadIdForTask,
   normalizeMessageType,
@@ -476,7 +476,7 @@ export function healMemberPaneBinding(member: TeamState['members'][string]): voi
     if (member.status === 'running' || member.status === 'queued') {
       member.status = 'idle'
     }
-    member.lastError = 'tmux pane disappeared'
+    member.lastError = 'psmux pane disappeared'
     member.lastWakeReason = 'pane lost'
     member.updatedAt = Date.now()
     if (priorPaneId) {

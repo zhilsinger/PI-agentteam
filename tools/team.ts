@@ -19,7 +19,7 @@ import {
   resolvePaneBinding,
   shellEscapeArg,
   waitForPaneAppStart,
-} from '../tmux.js'
+} from '../psmux.js'
 import { TEAM_LEAD } from '../types.js'
 import type { TeamState } from '../types.js'
 import type { ToolHandlerDeps } from './shared.js'
@@ -154,12 +154,12 @@ function spawnOne(
   if (!binding) {
     updateMemberStatus(team, workerName, {
       status: 'error',
-      lastError: 'Teammate tmux pane disappeared immediately after creation',
+      lastError: 'Teammate psmux pane disappeared immediately after creation',
     })
     writeTeamState(team)
     return {
       ok: false,
-      text: `Failed to keep tmux pane alive for ${workerName}`,
+      text: `Failed to keep psmux pane alive for ${workerName}`,
     }
   }
   team.members[workerName]!.paneId = binding.paneId
@@ -169,7 +169,7 @@ function spawnOne(
   if (!ready) {
     updateMemberStatus(team, workerName, {
       status: 'error',
-      lastError: 'Timed out waiting for teammate pi process to start in tmux pane',
+      lastError: 'Timed out waiting for teammate pi process to start in psmux pane',
     })
     writeTeamState(team)
     return {
@@ -256,7 +256,7 @@ export function registerTeamTools(pi: ExtensionAPI, deps: ToolHandlerDeps): void
   pi.registerTool({
     name: 'agentteam_spawn',
     label: 'AgentTeam Spawn',
-    description: 'Create a teammate in a tmux pane for the current session-attached team. If task is omitted, the teammate is created idle and waits for later instructions.',
+    description: 'Create a teammate in a psmux pane for the current session-attached team. If task is omitted, the teammate is created idle and waits for later instructions.',
     parameters: TeamSpawnParams,
     async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
       const team = deps.ensureTeamForSession(ctx)

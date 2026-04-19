@@ -5,7 +5,7 @@
 **Multi-agent team orchestration for [pi](https://github.com/badlogic/pi-mono)**
 
 Coordinate a leader with specialized teammates — researcher, planner, and implementer —
-each running in a visible tmux pane, collaborating through shared tasks and typed messages.
+each running in a visible psmux pane, collaborating through shared tasks and typed messages.
 
 [![npm](https://img.shields.io/npm/v/pi-agentteam?style=flat-square&color=blue)](https://www.npmjs.com/package/pi-agentteam)
 [![license](https://img.shields.io/npm/l/pi-agentteam?style=flat-square)](https://github.com/LinYS77/PI-agentteam/blob/main/LICENSE)
@@ -19,7 +19,7 @@ each running in a visible tmux pane, collaborating through shared tasks and type
 
 | | Feature | |
 |---|---|---|
-| 🖥️ | **tmux-native swarm** | Each teammate is a real `pi` session in its own pane — watch them work in real time |
+| 🖥️ | **psmux-native swarm** | Each teammate is a real `pi` session in its own pane — watch them work in real time |
 | 📋 | **Shared task board** | Create, claim, update, complete — full lifecycle tracking across the team |
 | 💬 | **Typed messaging** | `assignment` · `question` · `blocked` · `completion_report` · `fyi` — each with auto-wake semantics |
 | 🎯 | **Role-based tool guard** | Researcher (read-only) → Planner (read-only) → Implementer (full tools) — least privilege by default |
@@ -36,7 +36,9 @@ each running in a visible tmux pane, collaborating through shared tasks and type
 pi install npm:pi-agentteam
 ```
 
-**Requirements:** [pi](https://github.com/badlogic/pi-mono) ≥ 0.60 · [tmux](https://github.com/tmux/tmux)
+**Requirements:** [pi](https://github.com/badlogic/pi-mono) ≥ 0.60 · [psmux](https://github.com/psmux/psmux)
+
+> `psmux` is a native Windows tmux alternative and supports tmux-compatible CLI syntax used by this project.
 
 ---
 
@@ -51,7 +53,7 @@ You (leader):
                       task: "Analyze the build pipeline and report bottlenecks" })
   > agentteam_spawn({ name: "plan", role: "planner" })
 
-  ... researcher works in its own tmux pane ...
+  ... researcher works in its own psmux pane ...
 
   > agentteam_send({ to: "plan", message: "Research done, draft an optimization plan",
                      type: "fyi" })
@@ -194,7 +196,7 @@ index.ts              ← Extension entry point
 ├── orchestration.ts  ← Leader digest (coordination counters)
 ├── policy.ts         ← Leader delegation policy
 ├── agents.ts         ← Role discovery & agent loading
-├── tmux.ts           ← tmux pane/window management
+├── psmux.ts          ← psmux pane/window management
 ├── types.ts          ← Shared type definitions
 └── agents/           ← Bundled role prompts (markdown)
     ├── researcher.md
@@ -205,7 +207,7 @@ index.ts              ← Extension entry point
 ### Design Principles
 
 - **Removable** — delete the folder and reload; no core modifications
-- **Observable** — each teammate is a visible tmux pane you can watch
+- **Observable** — each teammate is a visible psmux pane you can watch
 - **Minimal prompt burden** — role behavior in markdown, not inflated system prompts
 - **File-based state** — JSON + lock files + atomic writes; no database
 - **Event-driven** — teammates wake on actionable messages, not polling
@@ -230,10 +232,10 @@ node tests/run.cjs
 
 ## ⚠️ Limitations
 
-- Workers are separate `pi` sessions in tmux panes, not in-process subagents
+- Workers are separate `pi` sessions in psmux panes, not in-process subagents
 - Creating a teammate and starting work are two steps (`spawn` + `send`)
 - State is local to one machine (no remote/distributed support)
-- Requires tmux; Windows terminals not supported (WSL works)
+- Requires psmux (native Windows tmux alternative); tmux-compatible CLI syntax is supported.
 
 ---
 
