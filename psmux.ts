@@ -13,10 +13,10 @@ export type AgentTeamPaneInfo = {
   currentCommand: string
 }
 
-const TMUX = 'tmux'
+const TMUX = 'psmux'
 const SWARM_SESSION = 'pi-agentteam'
 const SWARM_WINDOW = 'agentteam'
-const SHELL_COMMANDS = new Set(['bash', 'zsh', 'fish', 'sh'])
+const SHELL_COMMANDS = new Set(['bash', 'zsh', 'fish', 'sh', 'pwsh', 'powershell'])
 
 function runTmux(args: string[], input?: string): string {
   return execFileSync(TMUX, args, {
@@ -49,13 +49,18 @@ export function shellEscapeArg(text: string): string {
   return shellQuote(text)
 }
 
-export function isInsideTmux(): boolean {
+export function isInsidePsmux(): boolean {
   return Boolean(process.env.TMUX)
 }
 
-export function ensureTmuxAvailable(): void {
+export function ensurePsmuxAvailable(): void {
   runTmux(['-V'])
 }
+
+/** @deprecated Use isInsidePsmux */
+export const isInsideTmux = isInsidePsmux
+/** @deprecated Use ensurePsmuxAvailable */
+export const ensureTmuxAvailable = ensurePsmuxAvailable
 
 export function paneExists(paneId: string): boolean {
   if (!paneId) return false
@@ -107,9 +112,9 @@ function findAgentTeamWindowTarget(sessionName: string): string | null {
 }
 
 export function ensureSwarmWindow(preferred?: { target?: string; leaderPaneId?: string }): { session: string; window: string; target: string; leaderPaneId: string } {
-  ensureTmuxAvailable()
+  ensurePsmuxAvailable()
 
-  if (isInsideTmux()) {
+  if (isInsidePsmux()) {
     const preferredBinding = preferred?.leaderPaneId ? resolvePaneBinding(preferred.leaderPaneId) : null
     const preferredTarget = preferredBinding?.target ?? (preferred?.target && windowExists(preferred.target) ? preferred.target : null)
     const target = preferredTarget ?? runTmux(['display-message', '-p', '#{session_name}:#{window_id}'])
@@ -138,7 +143,7 @@ export function ensureSwarmWindow(preferred?: { target?: string; leaderPaneId?: 
       .map(line => line.split('\t'))
       .find(parts => parts[1] === SWARM_WINDOW)
     if (!result?.[0]) {
-      throw new Error('Failed to locate agentteam tmux window after creation')
+      throw new Error('Failed to locate agentteam psmux window after creation')
     }
     initialTarget = `${SWARM_SESSION}:${result[0]}`
     markWindowAsAgentTeam(initialTarget)
@@ -163,7 +168,7 @@ function clearPaneLabel(paneId: string): void {
 }
 
 export function captureCurrentPaneBinding(): { paneId: string; target: string } | null {
-  if (!isInsideTmux()) return null
+  if (!isInsidePsmux()) return null
   const paneIdResult = runTmuxNoThrow(['display-message', '-p', '#{pane_id}'])
   const targetResult = runTmuxNoThrow(['display-message', '-p', '#{session_name}:#{window_id}'])
   if (!paneIdResult.ok || !paneIdResult.stdout || !targetResult.ok || !targetResult.stdout) {
@@ -245,7 +250,7 @@ export function createTeammatePane(input: {
 }): { paneId: string; target: string } {
   const swarm = ensureSwarmWindow(input.preferred)
   const panes = runTmux(['list-panes', '-t', swarm.target, '-F', '#{pane_id}']).split('\n').filter(Boolean)
-  const hasLeaderLayout = isInsideTmux()
+  const hasLeaderLayout = isInsidePsmux()
 
   const commandArgs = input.startCommand ? [input.startCommand] : []
   const cwdArgs = input.cwd ? ['-c', input.cwd] : []

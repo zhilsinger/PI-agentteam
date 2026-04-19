@@ -13,13 +13,13 @@ import {
   killPane,
   listAgentTeamPanes,
   paneExists,
-} from '../tmux.js'
+} from '../psmux.js'
 import { TEAM_LEAD } from '../types.js'
 import type { CommandHandlerDeps } from './shared.js'
 
 export function registerCleanupCommands(pi: ExtensionAPI, deps: CommandHandlerDeps): void {
   pi.registerCommand('team-cleanup', {
-    description: 'Delete all teams and clean orphan tmux panes',
+    description: 'Delete all teams and clean orphan psmux panes',
     handler: async (_args, ctx) => {
       const currentTeamName = getCurrentTeamName(ctx)
       const teams = listTeams()

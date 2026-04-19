@@ -9,7 +9,7 @@ import {
   ensureSwarmWindow,
   focusPane,
   paneExists,
-} from '../tmux.js'
+} from '../psmux.js'
 import { TEAM_LEAD } from '../types.js'
 import type { CommandHandlerDeps } from './shared.js'
 
@@ -49,7 +49,7 @@ export function registerTeamCommands(pi: ExtensionAPI, deps: CommandHandlerDeps)
           focusPane(member.paneId)
           ctx.ui.notify(`Focused pane for ${member.name}`, 'info')
         } else {
-          ctx.ui.notify('No tmux pane registered for that teammate', 'warning')
+          ctx.ui.notify('No psmux pane registered for that teammate', 'warning')
         }
       }
       if (result?.type === 'open-leader-session') {
